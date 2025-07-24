@@ -7,7 +7,7 @@ import { Image } from "expo-image";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Dimensions, Share, View } from "react-native";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, { FadeIn, FadeInDown, FadeInUp } from "react-native-reanimated";
 
 import { HapticIconButton } from "@/components/HapticButton";
 import { ThemedText } from "@/components/ThemedText";
@@ -44,45 +44,97 @@ export function ProductImage({ product }: ProductImageProps) {
 
   return (
     <Animated.View
-      className="items-center justify-center bg-white p-5"
+      className="items-center justify-center"
       style={{
         width: width,
-        height: width * 0.8,
+        height: width * 0.85,
+        backgroundColor: colors.card,
       }}
-      entering={FadeIn.duration(300)}
+      entering={FadeIn.duration(400)}
     >
-      <Image
-        source={{ uri: product?.image }}
-        style={{ width: "100%", height: "100%" }}
-        contentFit="contain"
-        transition={400}
+      {/* Modern gradient background */}
+      <View
+        className="absolute inset-0 opacity-5"
+        style={{
+          backgroundColor: `${colors.tint}10`,
+        }}
       />
-      {product && product.stock <= 5 && (
-        <View
-          className="absolute px-2.5 py-1 rounded-2xl"
+      
+      {/* Product image container with subtle shadow */}
+      <View
+        className="w-full h-full p-6 items-center justify-center"
+        style={{
+          shadowColor: colors.text,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 8,
+          elevation: 3,
+        }}
+      >
+        <Animated.View
+          className="w-full h-full rounded-2xl overflow-hidden"
           style={{
-            top: 20,
-            left: 20,
-            backgroundColor: "rgba(255, 0, 0, 0.7)",
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            borderWidth: 1,
+            borderColor: colors.borderColor,
           }}
+          entering={FadeIn.delay(100).duration(400)}
         >
-          <ThemedText className="text-white text-xs font-bold">
+          <Image
+            source={{ uri: product?.image }}
+            style={{ width: "100%", height: "100%" }}
+            contentFit="contain"
+            transition={500}
+          />
+        </Animated.View>
+      </View>
+
+      {/* Modern low stock badge */}
+      {product && product.stock <= 5 && (
+        <Animated.View
+          className="absolute flex-row items-center px-3 py-1.5 rounded-full"
+          style={{
+            top: 24,
+            left: 20,
+            backgroundColor: "rgba(239, 68, 68, 0.95)",
+            shadowColor: "#EF4444",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.3,
+            shadowRadius: 4,
+            elevation: 4,
+          }}
+          entering={FadeInDown.delay(200).duration(300)}
+        >
+          <Ionicons name="warning" size={14} color="white" style={{ marginRight: 4 }} />
+          <ThemedText className="text-white text-xs font-semibold">
             {t("product_detail.low_stock", { count: product.stock })}
           </ThemedText>
-        </View>
+        </Animated.View>
       )}
 
-      <HapticIconButton
-        onPress={handleShare}
-        className="absolute top-2.5 right-2.5 w-8.5 h-8.5 justify-center items-center z-10"
-        style={{
-          backgroundColor: colors.cardBackground,
-          borderRadius: 17,
-        }}
-        hapticType="light"
+      {/* Modern share button */}
+      <Animated.View
+        className="absolute top-6 right-5"
+        entering={FadeInUp.delay(150).duration(300)}
       >
-        <Ionicons name="share-outline" size={22} color={colors.darkGray} />
-      </HapticIconButton>
+        <HapticIconButton
+          onPress={handleShare}
+          className="w-11 h-11 justify-center items-center rounded-full"
+          style={{
+            backgroundColor: colors.cardBackground,
+            shadowColor: colors.text,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+            borderWidth: 1,
+            borderColor: colors.borderColor,
+          }}
+          hapticType="light"
+        >
+          <Ionicons name="share-outline" size={20} color={colors.text} />
+        </HapticIconButton>
+      </Animated.View>
     </Animated.View>
   );
 }

@@ -7,6 +7,7 @@ import { Link } from "expo-router";
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Text, TextInput, View } from "react-native";
+import Animated, { FadeInUp, useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BaseButton } from "@/components/base/BaseButton";
@@ -153,100 +154,185 @@ export function PurchaseSection({ product }: PurchaseSectionProps) {
   const isInCart = !!currentCartItem;
   const isSameQuantity = currentCartItem && currentCartItem.quantity === numericQuantity;
 
+  const buttonScale = useSharedValue(1);
+  
+  const animatedButtonStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: buttonScale.value }],
+    };
+  });
+
+  const handleAddToCartAnimated = async () => {
+    buttonScale.value = withSpring(0.95, { duration: 100 }, () => {
+      buttonScale.value = withSpring(1, { duration: 100 });
+    });
+    await handleAddToCart();
+  };
+
   return (
-    <ThemedView
-      className="flex-row items-center px-5 pt-4 border-t"
+    <Animated.View
+      className="px-5 pt-6 pb-2"
       style={{
-        paddingBottom: insets.bottom,
-        borderTopColor: colors.borderColor,
+        paddingBottom: insets.bottom + 12,
         backgroundColor: colors.cardBackground,
+        shadowColor: colors.text,
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 8,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        borderTopWidth: 1,
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
+        borderColor: colors.borderColor,
       }}
+      entering={FadeInUp.duration(300)}
     >
-      <View
-        className="flex-row items-center rounded-xl border overflow-hidden"
-        style={{ borderColor: colors.borderColor }}
-      >
-        <HapticIconButton
-          className="w-12 h-12 items-center justify-center"
-          onPress={() => updateQuantity(-1)}
-          hapticType="light"
-          disabled={numericQuantity <= 1}
-        >
-          <Ionicons
-            name="remove"
-            size={22}
-            color={numericQuantity <= 1 ? colors.mediumGray : colors.text}
-          />
-        </HapticIconButton>
-        <TextInput
-          className="text-lg font-bold text-center"
-          style={{
-            color: colors.text,
-            minWidth: 50,
-            height: "100%",
-            textAlignVertical: "center",
-            paddingVertical: 0,
-            includeFontPadding: false,
-            lineHeight: 20,
-            borderLeftWidth: 1,
-            borderRightWidth: 1,
+      {/* Quantity selector with modern design */}
+      <View className="flex-row items-center mb-4">
+        <View
+          className="flex-row items-center rounded-2xl border overflow-hidden"
+          style={{ 
             borderColor: colors.borderColor,
             backgroundColor: colors.card,
+            shadowColor: colors.text,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.05,
+            shadowRadius: 4,
+            elevation: 2,
           }}
-          value={quantity}
-          onChangeText={handleQuantityChange}
-          onBlur={handleQuantityBlur}
-          keyboardType="number-pad"
-          maxLength={3}
-          selectTextOnFocus
-        />
-        <HapticIconButton
-          className="w-12 h-12 items-center justify-center"
-          onPress={() => updateQuantity(1)}
-          hapticType="light"
-          disabled={numericQuantity >= product.stock}
         >
-          <Ionicons
-            name="add"
-            size={22}
-            color={
-              numericQuantity >= product.stock ? colors.mediumGray : colors.text
-            }
-          />
-        </HapticIconButton>
-      </View>
-      {isInCart && isSameQuantity ? (
-        <Link href="/(tabs)/cart" asChild className="flex-1 ml-2">
-          <BaseButton
-            variant="success"
-            size="medium"
-            hapticType="medium"
+          <HapticIconButton
+            className="w-14 h-14 items-center justify-center"
+            onPress={() => updateQuantity(-1)}
+            hapticType="light"
+            disabled={numericQuantity <= 1}
+            style={{
+              opacity: numericQuantity <= 1 ? 0.4 : 1,
+            }}
           >
-            <Text className="text-base font-bold" style={{ color: "#FFFFFF" }}>
-              {t("product_detail.purchase.go_to_cart")}
-            </Text>
-          </BaseButton>
-        </Link>
-      ) : (
-        <BaseButton
-          className="flex-1 ml-2"
-          variant={isAdded ? "success" : "primary"}
-          size="medium"
-          onPress={handleAddToCart}
-          hapticType={isAdded ? "success" : "medium"}
-          disabled={product.stock === 0 || numericQuantity === 0}
+            <Ionicons
+              name="remove"
+              size={20}
+              color={numericQuantity <= 1 ? colors.mediumGray : colors.text}
+            />
+          </HapticIconButton>
+          
+          <View 
+            className="px-4"
+            style={{
+              borderLeftWidth: 1,
+              borderRightWidth: 1,
+              borderColor: colors.borderColor,
+              backgroundColor: colors.cardBackground,
+            }}
+          >
+            <TextInput
+              className="text-lg font-bold text-center"
+              style={{
+                color: colors.text,
+                minWidth: 60,
+                height: 56,
+                textAlignVertical: "center",
+                paddingVertical: 0,
+                includeFontPadding: false,
+                lineHeight: 22,
+              }}
+              value={quantity}
+              onChangeText={handleQuantityChange}
+              onBlur={handleQuantityBlur}
+              keyboardType="number-pad"
+              maxLength={3}
+              selectTextOnFocus
+            />
+          </View>
+          
+          <HapticIconButton
+            className="w-14 h-14 items-center justify-center"
+            onPress={() => updateQuantity(1)}
+            hapticType="light"
+            disabled={numericQuantity >= product.stock}
+            style={{
+              opacity: numericQuantity >= product.stock ? 0.4 : 1,
+            }}
+          >
+            <Ionicons
+              name="add"
+              size={20}
+              color={
+                numericQuantity >= product.stock ? colors.mediumGray : colors.text
+              }
+            />
+          </HapticIconButton>
+        </View>
+        
+        {/* Action button */}
+        <Animated.View 
+          className="flex-1 ml-4"
+          style={animatedButtonStyle}
         >
-          <Text className="text-base font-bold" style={{ color: "#FFFFFF" }}>
-            {product.stock === 0
-              ? t("product_detail.purchase.out_of_stock")
-              : isAdded
-                ? t("product_detail.purchase.added_to_cart")
-                : isInCart
-                  ? t("product_detail.purchase.update_cart")
-                  : t("product_detail.purchase.add_to_cart")}
-          </Text>
-        </BaseButton>
-      )}
-    </ThemedView>
+          {isInCart && isSameQuantity ? (
+            <Link href="/(tabs)/cart" asChild>
+              <BaseButton
+                variant="success"
+                size="large"
+                hapticType="medium"
+                style={{
+                  borderRadius: 16,
+                  shadowColor: "#10B981",
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 8,
+                  elevation: 6,
+                }}
+              >
+                <View className="flex-row items-center justify-center">
+                  <Ionicons name="cart" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+                  <Text className="text-base font-bold" style={{ color: "#FFFFFF" }}>
+                    {t("product_detail.purchase.go_to_cart")}
+                  </Text>
+                </View>
+              </BaseButton>
+            </Link>
+          ) : (
+            <BaseButton
+              variant={isAdded ? "success" : "primary"}
+              size="large"
+              onPress={handleAddToCartAnimated}
+              hapticType={isAdded ? "success" : "medium"}
+              disabled={product.stock === 0 || numericQuantity === 0}
+              style={{
+                borderRadius: 16,
+                shadowColor: isAdded ? "#10B981" : colors.tint,
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: 6,
+                opacity: (product.stock === 0 || numericQuantity === 0) ? 0.5 : 1,
+              }}
+            >
+              <View className="flex-row items-center justify-center">
+                <Ionicons 
+                  name={isAdded ? "checkmark" : "add"} 
+                  size={18} 
+                  color="#FFFFFF" 
+                  style={{ marginRight: 8 }} 
+                />
+                <Text className="text-base font-bold" style={{ color: "#FFFFFF" }}>
+                  {product.stock === 0
+                    ? t("product_detail.purchase.out_of_stock")
+                    : isAdded
+                      ? t("product_detail.purchase.added_to_cart")
+                      : isInCart
+                        ? t("product_detail.purchase.update_cart")
+                        : t("product_detail.purchase.add_to_cart")}
+                </Text>
+              </View>
+            </BaseButton>
+          )}
+        </Animated.View>
+      </View>
+    </Animated.View>
   );
 }

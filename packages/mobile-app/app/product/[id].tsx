@@ -12,6 +12,7 @@ import {
   Text,
   View,
 } from "react-native";
+import Animated, { FadeIn, SlideInUp } from "react-native-reanimated";
 import {
   KeyboardAwareScrollView,
   KeyboardStickyView,
@@ -101,7 +102,9 @@ export default function ProductDetailScreen() {
   if (loadingProducts) {
     return (
       <ThemedView className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
+        <Animated.View entering={FadeIn.duration(300)}>
+          <ActivityIndicator size="large" color={colors.tint} />
+        </Animated.View>
       </ThemedView>
     );
   }
@@ -109,9 +112,23 @@ export default function ProductDetailScreen() {
   if (!product) {
     return (
       <ThemedView className="flex-1">
-        <View className="flex-1 justify-center items-center">
-          <ThemedText>{t("product_detail.not_found_body")}</ThemedText>
-        </View>
+        <Animated.View 
+          className="flex-1 justify-center items-center px-6"
+          entering={FadeIn.duration(400)}
+        >
+          <View 
+            className="p-6 rounded-2xl items-center"
+            style={{
+              backgroundColor: colors.card,
+              borderWidth: 1,
+              borderColor: colors.borderColor,
+            }}
+          >
+            <ThemedText className="text-lg text-center" style={{ color: colors.mediumGray }}>
+              {t("product_detail.not_found_body")}
+            </ThemedText>
+          </View>
+        </Animated.View>
       </ThemedView>
     );
   }
@@ -124,11 +141,18 @@ export default function ProductDetailScreen() {
           style={{ flex: 1 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
-          bottomOffset={100} // PurchaseSection yüksekliği için space
+          bottomOffset={120} // PurchaseSection yüksekliği için space
           extraKeyboardSpace={20} // Ekstra boşluk
+          contentContainerStyle={{
+            flexGrow: 1,
+          }}
         >
-          <ProductImage product={product} />
-          <ProductInfo product={product} />
+          <Animated.View entering={FadeIn.duration(500)}>
+            <ProductImage product={product} />
+          </Animated.View>
+          <Animated.View entering={SlideInUp.delay(100).duration(400)}>
+            <ProductInfo product={product} />
+          </Animated.View>
         </KeyboardAwareScrollView>
         <PurchaseSection product={product} />
       </KeyboardStickyView>
