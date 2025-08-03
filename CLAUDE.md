@@ -41,6 +41,12 @@ bun run start:prod
 
 # Testing
 bun run test
+bun test src/tests/race-condition.test.ts  # Run specific test
+
+# Code quality
+bun run lint
+bun run lint:fix
+bun run lint:check  # Max warnings 0
 ```
 
 ### Mobile App Development
@@ -57,7 +63,10 @@ bun run web
 
 # Quality control
 bun run lint
-bun run analyze
+bun run analyze  # Bundle size analysis
+
+# Reset project (clean caches)
+bun run reset-project
 ```
 
 ## 🎯 Tech Stack Specifics
@@ -88,6 +97,14 @@ bun run analyze
 - **Types**: Order, Product, User, Cart, Address, Payment
 - **Constants**: API_ENDPOINTS, ORDER_STATUS, ERROR_MESSAGES (Turkish)
 - **Utils**: formatPrice (TRY), validatePhone (TR), formatDate (TR locale)
+
+```bash
+cd packages/shared
+bun run build     # Compile TypeScript
+bun run dev       # Watch mode
+bun run lint      # Check code quality
+bun run check     # Lint + build
+```
 
 ## 🗂️ Domain Organization (Backend)
 
@@ -146,6 +163,12 @@ context/
 - Fakturownia integration for invoices
 - Polish addresses and phone formats
 - Multi-currency support (PLN, EUR)
+
+### Turkish Market Support
+- Turkish phone validation (5XX XXX XX XX)
+- TRY currency formatting
+- Turkish language as default
+- Turkish error messages in shared constants
 
 ## 📊 Database Schema (PostgreSQL + Drizzle)
 
@@ -286,3 +309,22 @@ const order: Order = await orderService.create(orderData)
 - JWT token blacklisting
 - Stripe webhook signature validation
 - Input sanitization and validation
+
+## 📁 Important Files and Patterns
+
+### Backend Domain Services
+- **Stock Management**: `src/domains/order/application/use-cases/stock-*.service.ts`
+- **Payment Processing**: `src/domains/payment/application/webhook/`
+- **Invoice Generation**: `src/domains/order/application/use-cases/invoice*.service.ts`
+- **OTP Authentication**: `src/domains/identity/application/use-cases/otp.service.ts`
+
+### Mobile Context Providers
+- **Auth Context**: `packages/mobile-app/context/AuthContext.tsx`
+- **Cart Context**: `packages/mobile-app/context/CartContext.tsx`
+- **Product Context**: `packages/mobile-app/context/ProductContext.tsx`
+- **Address Context**: `packages/mobile-app/context/AddressContext.tsx`
+
+### Configuration Files
+- **Backend Config**: `packages/backend/src/shared/infrastructure/config/env.config.ts`
+- **Mobile API**: `packages/mobile-app/core/api.ts`
+- **Database Schema**: `packages/backend/src/shared/infrastructure/database/schema/`
