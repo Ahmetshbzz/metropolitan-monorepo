@@ -18,9 +18,9 @@ import {
 } from "../../../../shared/infrastructure/database/schema";
 
 // Refactored modular services
-import { StockManagementService } from "./order-creation/stock-management.service";
-import { PaymentProcessingService } from "./order-creation/payment-processing.service";
 import { CartManagementService } from "./order-creation/cart-management.service";
+import { PaymentProcessingService } from "./order-creation/payment-processing.service";
+import { StockManagementService } from "./order-creation/stock-management.service";
 
 export class OrderCreationService {
   /**
@@ -40,7 +40,7 @@ export class OrderCreationService {
   ): Promise<OrderCreationResult> {
     const result = await db.transaction(async (tx) => {
       // 1. CRITICAL: Stock validation and reservation (delegated)
-      await StockManagementService.validateAndReserveStock(tx, orderItemsData);
+      await StockManagementService.validateAndReserveStock(tx, orderItemsData, userId);
 
       const isStripePayment = PaymentProcessingService.isStripePayment(request.paymentMethodId);
       const isBankTransfer = request.paymentMethodId === "bank_transfer";
@@ -152,7 +152,6 @@ export class OrderCreationService {
 
       // Use modular services
       await CartManagementService.createOrderItems(tx, order.id, orderItemsData);
-      await StockManagementService.fallbackDatabaseStockReservation?.(tx, orderItemsData);
       await CartManagementService.clearUserCart(tx, userId);
 
       return order;

@@ -3,9 +3,10 @@
 //  Orchestrates stock validation and reservation using specialized services
 
 import type { OrderItem as OrderItemData } from "@metropolitan/shared/types/order";
-import { StockValidationService } from "./stock-validation.service";
-import { StockRedisOperationsService } from "./stock-redis-operations.service";
+
 import { StockDatabaseSyncService } from "./stock-database-sync.service";
+import { StockRedisOperationsService } from "./stock-redis-operations.service";
+import { StockValidationService } from "./stock-validation.service";
 
 export class StockManagementService {
   /**
@@ -14,12 +15,13 @@ export class StockManagementService {
    */
   static async validateAndReserveStock(
     tx: any,
-    orderItemsData: OrderItemData[]
+    orderItemsData: OrderItemData[],
+    userId: string
   ): Promise<void> {
     try {
       // Try Redis-based reservation first (faster + distributed locking)
       const { reservations, allSuccessful } = await StockRedisOperationsService
-        .reserveStockInRedis(orderItemsData);
+        .reserveStockInRedis(orderItemsData, userId);
 
       if (!allSuccessful) {
         // Rollback any successful reservations before throwing
@@ -37,7 +39,7 @@ export class StockManagementService {
         orderItemsData,
         reservations
       );
-    } catch (redisError) {
+    } catch (redisError: unknown) {
       console.warn(
         "Redis stock reservation failed, falling back to database:",
         redisError
@@ -45,7 +47,7 @@ export class StockManagementService {
 
       // Check if this is an insufficient stock error that should be rethrown
       if (
-        redisError.message &&
+        redisError instanceof Error &&
         redisError.message.includes("INSUFFICIENT_STOCK")
       ) {
         throw redisError; // Re-throw the stock error

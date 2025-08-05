@@ -16,7 +16,7 @@ export class StockRedisOperationsService {
    */
   static async reserveStockInRedis(
     orderItemsData: OrderItemData[],
-    userId: string = "temp-user"
+    userId: string
   ): Promise<{
     reservations: RedisReservation[];
     allSuccessful: boolean;
