@@ -2,6 +2,7 @@
 //  metropolitan app
 //  Created by Ahmet on 10.07.2025. Düzenlenme tarihi: 21.07.2025.
 
+import { useHaptics } from "@/hooks/useHaptics";
 import { Ionicons } from "@expo/vector-icons";
 import {
   BottomSheetBackdrop,
@@ -9,7 +10,6 @@ import {
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
 import * as Clipboard from "expo-clipboard";
-import { useHaptics } from "@/hooks/useHaptics";
 import { forwardRef, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { TouchableOpacity, View } from "react-native";

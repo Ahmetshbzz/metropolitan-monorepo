@@ -4,8 +4,8 @@
 
 import { CartItem as CartItemType, useCart } from "@/context/CartContext";
 import { useProducts } from "@/context/ProductContext";
-import { useTheme } from "@/hooks/useTheme";
 import { useHaptics } from "@/hooks/useHaptics";
+import { useTheme } from "@/hooks/useTheme";
 import { useRouter } from "expo-router";
 
 export const useCartItem = (item: CartItemType) => {

@@ -36,7 +36,7 @@ export function useHaptics() {
     if (Platform.OS === "ios" || Platform.OS === "android") {
       try {
         const now = Date.now();
-        if (!force && now - lastTriggerTs < 120) return; // 120ms cooldown
+        if (!force && now - lastTriggerTs < 100) return; // 100ms cooldown
         lastTriggerTs = now;
         switch (type) {
           case "light":

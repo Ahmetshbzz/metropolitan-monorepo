@@ -3,9 +3,9 @@
 //  Created by Ahmet on 12.06.2025.
 
 import { swipeConfig } from "@/constants/notifications.constants";
+import { useHaptics } from "@/hooks/useHaptics";
 import { SwipeActionsProps } from "@/types/notifications.types";
 import { Ionicons } from "@expo/vector-icons";
-import { useHaptics } from "@/hooks/useHaptics";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Animated, Text, TouchableOpacity } from "react-native";

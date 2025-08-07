@@ -2,10 +2,9 @@
 //  metropolitan app
 //  Created by Ahmet on 30.06.2025.
 
+import { useHaptics } from "@/hooks/useHaptics";
 import type { ThemeColors } from "@/types/theme";
 import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
-import { useHaptics } from "@/hooks/useHaptics";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -37,13 +36,10 @@ export const SimpleAddToCartButton: React.FC<SimpleAddToCartButtonProps> = ({
     try {
       await onPress(e);
       setState("success");
-      // Başarıya daha yumuşak bir bildirim
-      triggerHaptic("light");
-      setTimeout(() => setState("idle"), 1500);
+      // Başarı/hata sonrası ekstra haptik yok; tek haptik basış anında
+      setTimeout(() => setState("idle"), 1200);
     } catch {
       setState("idle");
-      // Hata halinde de aşırı sertlik olmadan
-      triggerHaptic("light");
     }
   };
 

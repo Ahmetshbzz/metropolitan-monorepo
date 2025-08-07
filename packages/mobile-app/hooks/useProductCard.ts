@@ -38,8 +38,7 @@ export const useProductCard = (product: Product) => {
     e.preventDefault();
     e.stopPropagation();
 
-    triggerHaptic("light");
-    
+    // Haptik sadece buton bileşeninde tetiklenecek; burada kaldırıldı
     try {
       await addToCart(product.id, 1);
     } catch (error) {

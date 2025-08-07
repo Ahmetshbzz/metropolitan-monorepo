@@ -15,8 +15,8 @@ import { useCart } from "@/context/CartContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useHaptics } from "@/hooks/useHaptics";
 import { useToast } from "@/hooks/useToast";
-import type { Product } from "@metropolitan/shared";
 import { StructuredError } from "@/types/error.types";
+import type { Product } from "@metropolitan/shared";
 
 interface PurchaseSectionProps {
   product: Product;
@@ -41,7 +41,6 @@ export function PurchaseSection({
   const { showToast } = useToast();
   const { triggerHaptic } = useHaptics();
   const router = useRouter();
-
 
   const [isAdded, setIsAdded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -115,9 +114,6 @@ export function PurchaseSection({
       setIsLoading(false);
     }
   };
-
-
-
 
   const numericQuantity = parseInt(quantity, 10) || 0;
 

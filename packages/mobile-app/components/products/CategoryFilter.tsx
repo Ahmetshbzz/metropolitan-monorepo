@@ -5,8 +5,8 @@
 import React from "react";
 import { ScrollView, View } from "react-native";
 
-import { Category } from "@/context/ProductContext";
 import { HapticButton } from "@/components/HapticButton";
+import { Category } from "@/context/ProductContext";
 import { CategoryFilterItem } from "./CategoryFilterItem";
 
 interface CategoryFilterProps {
@@ -37,7 +37,11 @@ export function CategoryFilter({
             hapticType="light"
             onPress={() => handleCategoryPress(category.slug)}
             className="mr-4"
-            style={{ paddingVertical: 0, paddingHorizontal: 0, backgroundColor: "transparent" }}
+            style={{
+              paddingVertical: 0,
+              paddingHorizontal: 0,
+              backgroundColor: "transparent",
+            }}
           >
             <CategoryFilterItem
               category={category}

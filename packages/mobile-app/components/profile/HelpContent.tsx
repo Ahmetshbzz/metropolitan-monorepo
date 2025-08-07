@@ -8,8 +8,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 
-import { ThemedText } from "@/components/ThemedText";
 import { HapticButton } from "@/components/HapticButton";
+import { ThemedText } from "@/components/ThemedText";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useHaptics } from "@/hooks/useHaptics";
@@ -91,14 +91,18 @@ export function HelpContent({
 
   return (
     <View className="px-1 pt-2.5">
-      <ThemedText 
+      <ThemedText
         className="text-sm leading-6 text-center mb-5"
         style={{ color: colors.textSecondary }}
       >
         {infoText}
       </ThemedText>
 
-      <HapticButton hapticType="light" onPress={() => handleContactPress("email")} style={{ backgroundColor: "transparent" }}>
+      <HapticButton
+        hapticType="light"
+        onPress={() => handleContactPress("email")}
+        style={{ backgroundColor: "transparent" }}
+      >
         <ContactButton
           icon="mail-outline"
           label={t("profile.help.send_email")}
@@ -106,7 +110,11 @@ export function HelpContent({
           onPress={() => handleContactPress("email")}
         />
       </HapticButton>
-      <HapticButton hapticType="light" onPress={() => handleContactPress("phone")} style={{ backgroundColor: "transparent" }}>
+      <HapticButton
+        hapticType="light"
+        onPress={() => handleContactPress("phone")}
+        style={{ backgroundColor: "transparent" }}
+      >
         <ContactButton
           icon="call-outline"
           label={t("profile.help.call_us")}
