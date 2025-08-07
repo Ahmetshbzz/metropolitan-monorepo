@@ -75,11 +75,19 @@ const main = async () => {
       process.exit(1);
     }
 
-    const filePath = path.join(
-      process.cwd(),
-      "data",
-      "yayla_products_kategorili-all.json"
-    );
+    // NOTE: Basit: önce SEED_DATA_FILE, yoksa public/ altından oku.
+    function resolveSeedFilePath(fileName: string): string {
+      const envPath = process.env.SEED_DATA_FILE;
+      if (envPath && fs.existsSync(envPath)) return envPath;
+      const candidate = path.join(process.cwd(), "public", fileName);
+      if (fs.existsSync(candidate)) return candidate;
+      throw new Error(
+        `Seed data not found at: ${candidate}. Set SEED_DATA_FILE to override.`
+      );
+    }
+
+    const seedFileName = "yayla_products_kategorili-all.json";
+    const filePath = resolveSeedFilePath(seedFileName);
     const fileContent = fs.readFileSync(filePath, "utf-8");
     const productsData = JSON.parse(fileContent);
 
