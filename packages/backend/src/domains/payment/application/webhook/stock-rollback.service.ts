@@ -1,16 +1,15 @@
 //  "stock-rollback.service.ts"
-//  metropolitan backend  
+//  metropolitan backend
 //  Orchestrates stock rollback operations using strategy pattern
 //  Refactored to use modular rollback strategies
 
 import { WebhookOrderManagementService } from "./order-management.service";
-import { RedisRollbackStrategy } from "./rollback-strategies/redis-rollback.strategy";
 import { DatabaseRollbackStrategy } from "./rollback-strategies/database-rollback.strategy";
+import { RedisRollbackStrategy } from "./rollback-strategies/redis-rollback.strategy";
+// import type { RollbackResult } from "./rollback-types";
 import { StockVerificationService } from "./stock-verification.service";
-import type { RollbackResult } from "./rollback-types";
 
 export class WebhookStockRollbackService {
-
   /**
    * Comprehensive stock rollback for failed/canceled payments
    * Uses both Redis and database for consistency
@@ -25,15 +24,20 @@ export class WebhookStockRollbackService {
     console.log(`🔄 Starting stock rollback for order ${orderId}`);
 
     // Get order details for rollback
-    const orderDetailsResult = await WebhookOrderManagementService
-      .getOrderDetailsForRollback(orderId);
+    const orderDetailsResult =
+      await WebhookOrderManagementService.getOrderDetailsForRollback(orderId);
 
-    if (!orderDetailsResult.success || orderDetailsResult.orderDetails.length === 0) {
+    if (
+      !orderDetailsResult.success ||
+      orderDetailsResult.orderDetails.length === 0
+    ) {
       return {
         success: false,
         redisRollback: false,
         databaseRollback: false,
-        errors: [`Unable to get order details: ${orderDetailsResult.error || 'No items found'}`],
+        errors: [
+          `Unable to get order details: ${orderDetailsResult.error || "No items found"}`,
+        ],
         message: `Stock rollback failed for order ${orderId}`,
       };
     }
@@ -48,17 +52,19 @@ export class WebhookStockRollbackService {
     ]);
 
     // Process results
-    const redisRollback = redisResult.status === "fulfilled" && redisResult.value.success;
-    const databaseRollback = databaseResult.status === "fulfilled" && databaseResult.value.success;
-    
+    const redisRollback =
+      redisResult.status === "fulfilled" && redisResult.value.success;
+    const databaseRollback =
+      databaseResult.status === "fulfilled" && databaseResult.value.success;
+
     const errors: string[] = [];
-    
+
     if (redisResult.status === "rejected") {
       errors.push(`Redis rollback failed: ${redisResult.reason}`);
     } else if (!redisResult.value.success) {
       errors.push(...redisResult.value.errors);
     }
-    
+
     if (databaseResult.status === "rejected") {
       errors.push(`Database rollback failed: ${databaseResult.reason}`);
     } else if (!databaseResult.value.success) {
@@ -87,15 +93,17 @@ export class WebhookStockRollbackService {
     quantity: number
   ): Promise<{
     success: boolean;
-    method: 'redis' | 'database' | 'both' | 'none';
+    method: "redis" | "database" | "both" | "none";
     message: string;
   }> {
     const redisStrategy = new RedisRollbackStrategy();
-    const result = await redisStrategy.rollback([{ userId, productId, quantity }]);
+    const result = await redisStrategy.rollback([
+      { userId, productId, quantity },
+    ]);
 
     return {
       success: result.success,
-      method: result.success ? result.method : 'none',
+      method: result.success ? result.method : "none",
       message: result.success
         ? `Stock rollback successful for product ${productId} (${result.method})`
         : `Stock rollback failed for product ${productId}`,

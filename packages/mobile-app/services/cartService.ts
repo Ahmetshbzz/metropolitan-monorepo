@@ -2,107 +2,63 @@
 //  metropolitan app
 //  Created by Ahmet on 26.06.2025.
 
-import { api } from "@/core/api";
 import { CartItem } from "@/types/cart";
+import { normalizeGuestCartResponse, normalizeUserCartResponse } from "./cart/normalizers";
 import {
-  normalizeGuestCartResponse,
-  normalizeUserCartResponse,
-} from "@/utils/cartNormalizers";
+  getUserCart as getUserCartApi,
+  addToUserCart as addToUserCartApi,
+  updateUserCartItem as updateUserCartItemApi,
+  removeUserCartItem as removeUserCartItemApi,
+  clearUserCart as clearUserCartApi,
+} from "./cart/userCartService";
+import {
+  getGuestCart as getGuestCartApi,
+  addToGuestCart as addToGuestCartApi,
+  updateGuestCartItem as updateGuestCartItemApi,
+  removeGuestCartItem as removeGuestCartItemApi,
+  clearGuestCart as clearGuestCartApi,
+} from "./cart/guestCartService";
 
 export class CartService {
   // User cart operations
   static async getUserCart() {
-    const response = await api.get("/me/cart");
+    const response = await getUserCartApi();
     return normalizeUserCartResponse(response);
   }
 
   static async addToUserCart(productId: string, quantity: number, lang: string = 'tr') {
-    try {
-      await api.post("/me/cart", {
-        productId,
-        quantity,
-      }, {
-        params: { lang }
-      });
-    } catch (error: any) {
-      // Backend'den gelen hata response'unu olduğu gibi fırlat
-      // useCartState hook'u bunu handle edecek
-      throw error;
-    }
+    try { await addToUserCartApi(productId, quantity, lang); } catch (error) { throw error as any; }
   }
 
   static async updateUserCartItem(itemId: string, quantity: number, lang: string = 'tr') {
-    try {
-      await api.put(`/me/cart/${itemId}`, { quantity }, {
-        params: { lang }
-      });
-    } catch (error: any) {
-      // Backend'den gelen hata response'unu olduğu gibi fırlat
-      // useCartState hook'u bunu handle edecek
-      throw error;
-    }
+    try { await updateUserCartItemApi(itemId, quantity, lang); } catch (error) { throw error as any; }
   }
 
-  static async removeUserCartItem(itemId: string) {
-    await api.delete(`/me/cart/${itemId}`);
-  }
+  static async removeUserCartItem(itemId: string) { await removeUserCartItemApi(itemId); }
 
-  static async clearUserCart() {
-    await api.delete("/me/cart");
-  }
+  static async clearUserCart() { await clearUserCartApi(); }
 
   // Guest cart operations
   static async getGuestCart(guestId: string, language: string) {
-    const response = await api.get(`/guest/cart/${guestId}`, {
-      params: { lang: language },
-    });
-
-    if (response.data.success) {
-      return normalizeGuestCartResponse(response);
-    }
-
-    return {
-      items: [],
-      summary: { totalItems: 0, totalAmount: 0, currency: "TRY" },
-    };
+    const response = await getGuestCartApi(guestId, language);
+    if (response.data.success) return normalizeGuestCartResponse(response);
+    return { items: [], summary: { totalItems: 0, totalAmount: 0, currency: "TRY" } };
   }
 
-  static async addToGuestCart(
-    guestId: string,
-    productId: string,
-    quantity: number
-  ) {
-    await api.post("/guest/cart/add", {
-      guestId,
-      productId,
-      quantity,
-    });
+  static async addToGuestCart(guestId: string, productId: string, quantity: number) {
+    await addToGuestCartApi(guestId, productId, quantity);
   }
 
-  static async updateGuestCartItem(
-    guestId: string,
-    itemId: string,
-    productId: string,
-    quantity: number
-  ) {
-    // Guest endpoint'inde direct update yok, remove edip tekrar add yapıyoruz
-    await api.delete(`/guest/cart/${guestId}/${itemId}`);
-    await api.post("/guest/cart/add", {
-      guestId,
-      productId,
-      quantity,
-    });
+  static async updateGuestCartItem(guestId: string, itemId: string, productId: string, quantity: number) {
+    await updateGuestCartItemApi(guestId, itemId, productId, quantity);
   }
 
   static async removeGuestCartItem(guestId: string, itemId: string) {
-    await api.delete(`/guest/cart/${guestId}/${itemId}`);
+    await removeGuestCartItemApi(guestId, itemId);
   }
 
   static async clearGuestCart(guestId: string, cartItems: CartItem[]) {
-    // Guest user - her item'ı tek tek sil (bulk clear endpoint'i yok)
-    for (const item of cartItems) {
-      await api.delete(`/guest/cart/${guestId}/${item.id}`);
-    }
+    await clearGuestCartApi(guestId, cartItems);
   }
 
   // Hybrid operations (automatically choose user or guest)

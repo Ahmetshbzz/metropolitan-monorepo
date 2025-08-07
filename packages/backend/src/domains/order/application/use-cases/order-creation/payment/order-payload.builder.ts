@@ -4,6 +4,8 @@
 
 import type { OrderCreationRequest } from "@metropolitan/shared/types/order";
 
+import { generateOrderNumber } from "../../../../domain/value-objects/order-number.util";
+
 export class OrderPayloadBuilder {
   /**
    * Create order payload for database insertion
@@ -14,8 +16,6 @@ export class OrderPayloadBuilder {
     totalAmount: number,
     isStripePayment: boolean
   ): any {
-    const { generateOrderNumber } = require("../../../../domain/value-objects/order-number.util");
-    
     const orderPayload: any = {
       orderNumber: generateOrderNumber(),
       userId: userId,
@@ -37,7 +37,7 @@ export class OrderPayloadBuilder {
     // Billing address defaults to shipping if not provided
     orderPayload.billingAddressId =
       request.billingAddressId || request.shippingAddressId;
-    
+
     if (request.notes) {
       orderPayload.notes = request.notes;
     }

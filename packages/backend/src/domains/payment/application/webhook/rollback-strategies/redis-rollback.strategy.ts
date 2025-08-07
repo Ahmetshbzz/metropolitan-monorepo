@@ -2,7 +2,7 @@
 //  metropolitan backend
 //  Redis-specific rollback strategy
 
-import type { RollbackStrategy, RollbackResult } from "../rollback-types";
+import type { RollbackResult, RollbackStrategy } from "../rollback-types";
 
 export class RedisRollbackStrategy implements RollbackStrategy {
   async rollback(
@@ -27,7 +27,7 @@ export class RedisRollbackStrategy implements RollbackStrategy {
             detail.productId
           );
           successCount++;
-        } catch (error) {
+        } catch (_error) {
           errors.push(
             `Redis rollback failed for ${detail.productId}: ${
               error instanceof Error ? error.message : "Unknown error"
@@ -42,23 +42,21 @@ export class RedisRollbackStrategy implements RollbackStrategy {
         itemsRolledBack: successCount,
         errors,
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         success: false,
         method: "redis",
         itemsRolledBack: 0,
         errors: [
           `Redis service unavailable: ${
-            error instanceof Error ? error.message : "Unknown error"
+            _error instanceof Error ? _error.message : "Unknown error"
           }`,
         ],
       };
     }
   }
 
-  async verify(
-    orderDetails: Array<{ productId: string }>
-  ): Promise<{
+  async verify(orderDetails: Array<{ productId: string }>): Promise<{
     verified: boolean;
     stockLevels: Array<{
       productId: string;
@@ -89,7 +87,7 @@ export class RedisRollbackStrategy implements RollbackStrategy {
         verified: true,
         stockLevels,
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         verified: false,
         stockLevels: [],

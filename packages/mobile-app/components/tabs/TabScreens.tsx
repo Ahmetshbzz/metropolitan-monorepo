@@ -2,16 +2,14 @@
 //  metropolitan app
 //  Created by Ahmet on 04.07.2025.
 
-import { Ionicons } from "@expo/vector-icons";
+import { CartHeaderRight } from "@/components/tabs/CartHeaderRight";
+import { HomeHeaderRight } from "@/components/tabs/HomeHeaderRight";
+import { ProductsHeaderRight } from "@/components/tabs/ProductsHeaderRight";
+import { CartIcon, HomeIcon, OrdersIcon, ProductsIcon, ProfileIcon } from "@/components/tabs/TabIcons";
+import { useProductsSearch } from "@/context/ProductsSearchContext";
 import { Tabs } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { TouchableOpacity, View } from "react-native";
-
-import { HapticIconButton } from "@/components/HapticButton";
-import { SearchInput } from "@/components/appbar/SearchInput";
-import { useProductsSearch } from "@/context/ProductsSearchContext";
-import { useTheme } from "@/hooks/useTheme";
 
 interface TabScreensProps {
   cartItemCount: number;
@@ -29,7 +27,6 @@ export const TabScreens = ({
   screenOptions,
 }: TabScreensProps) => {
   const { t } = useTranslation();
-  const { colors } = useTheme();
   const { searchQuery, setSearchQuery } = useProductsSearch();
 
   return (
@@ -54,28 +51,8 @@ export const TabScreens = ({
           title: t("tabs.home"),
           headerShown: true,
           headerTitle: t("tabs.home"),
-          headerRight: () => (
-            <View style={{ flexDirection: "row", marginRight: 4 }}>
-              <HapticIconButton
-                onPress={handleNotification}
-                hapticType="light"
-                style={{ padding: 8 }}
-              >
-                <Ionicons
-                  name="notifications-outline"
-                  size={24}
-                  color={colors.text}
-                />
-              </HapticIconButton>
-            </View>
-          ),
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              size={24}
-              name={focused ? "home" : "home-outline"}
-              color={color}
-            />
-          ),
+          headerRight: () => <HomeHeaderRight onPress={handleNotification} />,
+          tabBarIcon: ({ color, focused }) => <HomeIcon color={color} focused={focused} />,
         }}
       />
       <Tabs.Screen
@@ -85,38 +62,13 @@ export const TabScreens = ({
           headerShown: true,
           headerTitle: t("tabs.products"),
           headerRight: () => (
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginRight: 4,
-              }}
-            >
-              <SearchInput
-                onSearchChange={setSearchQuery}
-                initialValue={searchQuery}
-                placeholder="Ürün ara..."
-              />
-              <HapticIconButton
-                onPress={handleNotification}
-                hapticType="light"
-                style={{ padding: 8 }}
-              >
-                <Ionicons
-                  name="notifications-outline"
-                  size={24}
-                  color={colors.text}
-                />
-              </HapticIconButton>
-            </View>
-          ),
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              size={24}
-              name={focused ? "bag" : "bag-outline"}
-              color={color}
+            <ProductsHeaderRight
+              onNotify={handleNotification}
+              onSearchChange={setSearchQuery}
+              initialValue={searchQuery}
             />
           ),
+          tabBarIcon: ({ color, focused }) => <ProductsIcon color={color} focused={focused} />,
         }}
       />
       <Tabs.Screen
@@ -125,28 +77,8 @@ export const TabScreens = ({
           title: t("tabs.cart.title"),
           headerShown: true,
           headerTitle: t("tabs.cart.title"),
-          headerRight:
-            cartItemCount > 0
-              ? () => (
-                  <TouchableOpacity
-                    onPress={handleClearCart}
-                    style={{ padding: 8, marginRight: 4 }}
-                  >
-                    <Ionicons
-                      name="trash-outline"
-                      size={24}
-                      color={colors.text}
-                    />
-                  </TouchableOpacity>
-                )
-              : undefined,
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              size={24}
-              name={focused ? "cart" : "cart-outline"}
-              color={color}
-            />
-          ),
+          headerRight: cartItemCount > 0 ? () => <CartHeaderRight onClear={handleClearCart} /> : undefined,
+          tabBarIcon: ({ color, focused }) => <CartIcon color={color} focused={focused} />,
           tabBarBadge: cartItemCount > 0 ? cartItemCount : undefined,
         }}
       />
@@ -156,13 +88,7 @@ export const TabScreens = ({
           title: t("tabs.orders"),
           headerShown: true,
           headerTitle: t("tabs.orders"),
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              size={24}
-              name={focused ? "receipt" : "receipt-outline"}
-              color={color}
-            />
-          ),
+          tabBarIcon: ({ color, focused }) => <OrdersIcon color={color} focused={focused} />,
         }}
       />
       <Tabs.Screen
@@ -171,13 +97,7 @@ export const TabScreens = ({
           title: t("tabs.profile"),
           headerShown: true,
           headerTitle: t("tabs.profile"),
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              size={24}
-              name={focused ? "person" : "person-outline"}
-              color={color}
-            />
-          ),
+          tabBarIcon: ({ color, focused }) => <ProfileIcon color={color} focused={focused} />,
         }}
       />
     </Tabs>

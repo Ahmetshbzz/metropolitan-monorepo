@@ -1,12 +1,13 @@
 // "monitoring-health.service.ts"
-// metropolitan backend  
+// metropolitan backend
 // Health check and monitoring status service
 
 import { redis } from "../../database/redis";
+
 import { MetricsCollectionService } from "./metrics-collection.service";
 
 export interface MonitoringHealthStatus {
-  status: 'healthy' | 'warning' | 'error';
+  status: "healthy" | "warning" | "error";
   monitoring: boolean;
   services: {
     redis: boolean;
@@ -20,7 +21,9 @@ export class MonitoringHealthService {
   /**
    * Perform comprehensive health check of the monitoring system
    */
-  static async performHealthCheck(isMonitoring: boolean): Promise<MonitoringHealthStatus> {
+  static async performHealthCheck(
+    isMonitoring: boolean
+  ): Promise<MonitoringHealthStatus> {
     const issues: string[] = [];
     const services = {
       redis: false,
@@ -32,28 +35,32 @@ export class MonitoringHealthService {
     try {
       await redis.ping();
       services.redis = true;
-    } catch (error) {
-      issues.push('Redis connection failed');
+    } catch (_error) {
+      issues.push("Redis connection failed");
     }
 
     // Check if metrics collection is working
     try {
       await MetricsCollectionService.getAPIMetricsOnly();
       services.metrics = true;
-    } catch (error) {
-      issues.push('Metrics collection failed');
+    } catch (_error) {
+      issues.push("Metrics collection failed");
     }
 
     // Check database connectivity (through metrics collection)
     try {
       await MetricsCollectionService.getDatabaseMetricsOnly();
       services.database = true;
-    } catch (error) {
-      issues.push('Database metrics collection failed');
+    } catch (_error) {
+      issues.push("Database metrics collection failed");
     }
 
-    const status = issues.length === 0 ? 'healthy' : 
-                  issues.length <= 1 ? 'warning' : 'error';
+    const status =
+      issues.length === 0
+        ? "healthy"
+        : issues.length <= 1
+          ? "warning"
+          : "error";
 
     return {
       status,
@@ -99,7 +106,7 @@ export class MonitoringHealthService {
   static async getDiagnostics(): Promise<{
     timestamp: string;
     uptime: number;
-    services: MonitoringHealthStatus['services'];
+    services: MonitoringHealthStatus["services"];
     recentErrors: string[];
   }> {
     const [redisHealth, metricsHealth, databaseHealth] = await Promise.all([

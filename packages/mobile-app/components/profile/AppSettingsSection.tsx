@@ -5,17 +5,15 @@
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
-import { ThemedText } from "@/components/ThemedText";
+import { CommunicationPreferencesContent } from "@/components/profile/CommunicationPreferencesContent";
+import { ChangeLanguageRow } from "@/components/profile/settings/ChangeLanguageRow";
+import { CommunicationPreferencesRow } from "@/components/profile/settings/CommunicationPreferencesRow";
+import { HapticsRow } from "@/components/profile/settings/HapticsRow";
+import { ThemeRow } from "@/components/profile/settings/ThemeRow";
 import { ThemedView } from "@/components/ThemedView";
-import { SettingsItem } from "@/components/profile/SettingsItem";
 import Colors from "@/constants/Colors";
 import { UserSettings } from "@/context/UserSettings";
-import { changeLanguage } from "@/core/i18n";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { useHaptics } from "@/hooks/useHaptics";
-import { Ionicons } from "@expo/vector-icons";
-import ContextMenu from "react-native-context-menu-view";
-import { CommunicationPreferencesContent } from "./CommunicationPreferencesContent";
 
 interface AppSettingsSectionProps {
   settings: UserSettings;
@@ -32,28 +30,9 @@ export function AppSettingsSection({
   handlePresentModal,
   dismissModal,
 }: AppSettingsSectionProps) {
-  const { t, i18n } = useTranslation();
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? "light"];
-  const { triggerHaptic } = useHaptics();
-
-  const handleLanguageChange = async (lang: "tr" | "en" | "pl") => {
-    triggerHaptic("success");
-    await changeLanguage(lang);
-  };
-
-  const getCurrentLanguageName = () => {
-    switch (i18n.language) {
-      case "tr":
-        return t("languages.tr");
-      case "pl":
-        return t("languages.pl");
-      case "en":
-        return t("languages.en");
-      default:
-        return t("languages.tr");
-    }
-  };
+  const { t } = useTranslation();
+  const scheme = (useColorScheme() ?? "light") as keyof typeof Colors;
+  const colors = Colors[scheme];
 
   return (
     <View className="w-full">
@@ -71,12 +50,10 @@ export function AppSettingsSection({
             paddingVertical: 0,
           }}
         >
-          <SettingsItem
-            icon="color-palette-outline"
+          <ThemeRow
             label={t("profile.app_theme")}
-            type="toggle"
-            value={settings.theme === "dark"}
-            onValueChange={toggleTheme}
+            value={settings.theme}
+            onToggle={toggleTheme}
           />
           <View
             style={{
@@ -85,70 +62,7 @@ export function AppSettingsSection({
               marginLeft: 44,
             }}
           />
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              minHeight: 44,
-            }}
-          >
-            <Ionicons
-              name="language-outline"
-              size={20}
-              color={colors.darkGray}
-            />
-            <ThemedText className="flex-1 ml-4 text-base">
-              {t("profile.app_language")}
-            </ThemedText>
-            <ContextMenu
-              dropdownMenuMode={true}
-              actions={[
-                {
-                  title: t("languages.tr"),
-                  selected: i18n.language === "tr",
-                },
-                {
-                  title: t("languages.en"),
-                  selected: i18n.language === "en",
-                },
-                {
-                  title: t("languages.pl"),
-                  selected: i18n.language === "pl",
-                },
-              ]}
-              onPress={(e) => {
-                const languages = ["tr", "en", "pl"] as const;
-                const selectedLang = languages[e.nativeEvent.index];
-                if (selectedLang) {
-                  handleLanguageChange(selectedLang);
-                }
-              }}
-            >
-              <View
-                style={{
-                  minWidth: 80,
-                  paddingVertical: 8,
-                  paddingHorizontal: 8,
-                  borderRadius: 8,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <ThemedText
-                  className="text-base"
-                  style={{ color: colors.darkGray, marginRight: 4 }}
-                >
-                  {getCurrentLanguageName()}
-                </ThemedText>
-                <Ionicons
-                  name="chevron-down"
-                  size={16}
-                  color={colors.mediumGray}
-                />
-              </View>
-            </ContextMenu>
-          </View>
+          <ChangeLanguageRow label={t("profile.app_language")} />
           <View
             style={{
               height: 1,
@@ -156,12 +70,10 @@ export function AppSettingsSection({
               marginLeft: 44,
             }}
           />
-          <SettingsItem
-            icon="phone-portrait-outline"
+          <HapticsRow
             label={t("profile.haptics")}
-            type="toggle"
             value={settings.hapticsEnabled}
-            onValueChange={toggleHaptics}
+            onToggle={toggleHaptics}
           />
           <View
             style={{
@@ -170,10 +82,8 @@ export function AppSettingsSection({
               marginLeft: 44,
             }}
           />
-          <SettingsItem
-            icon="chatbubble-ellipses-outline"
+          <CommunicationPreferencesRow
             label={t("profile.communication_preferences")}
-            type="link"
             onPress={() =>
               handlePresentModal(
                 t("profile.communication_preferences"),
