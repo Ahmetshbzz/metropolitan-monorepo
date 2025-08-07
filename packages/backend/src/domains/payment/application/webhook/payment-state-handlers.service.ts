@@ -1,6 +1,9 @@
 // payment-state-handlers.service.ts
 // Individual handlers for each payment intent state
 
+import { createDomainEvent } from "../../../../shared/application/events/domain-events";
+import { OutboxService } from "../../../../shared/application/events/outbox.service";
+
 import { WebhookOrderManagementService } from "./order-management.service";
 import { PaymentIntentActionsService } from "./payment-intent-actions.service";
 import type { WebhookProcessingResult } from "./webhook-types";
@@ -37,6 +40,18 @@ export class PaymentStateHandlersService {
         paymentIntentId
       );
 
+    // Emit payment.succeeded event (outbox)
+    const paymentSucceeded = createDomainEvent(
+      "payment.succeeded",
+      {
+        orderId,
+        userId,
+        paymentIntentId,
+      },
+      orderId
+    );
+    await OutboxService.addEvent(paymentSucceeded);
+
     if (!orderUpdateResult.success) {
       return orderUpdateResult;
     }
@@ -65,6 +80,14 @@ export class PaymentStateHandlersService {
     // Mark order as failed
     const orderUpdateResult =
       await WebhookOrderManagementService.markOrderFailed(orderId);
+
+    // Emit payment.failed event (outbox)
+    const paymentFailed = createDomainEvent(
+      "payment.failed",
+      { orderId },
+      orderId
+    );
+    await OutboxService.addEvent(paymentFailed);
 
     if (!orderUpdateResult.success) {
       return orderUpdateResult;

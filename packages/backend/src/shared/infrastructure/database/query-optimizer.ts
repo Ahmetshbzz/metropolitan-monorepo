@@ -135,19 +135,19 @@ export class QueryOptimizer {
     // Get connection pool stats from PostgreSQL
     const result = await db.execute(sql`
       SELECT 
-        count(*) as total_connections,
-        count(*) FILTER (WHERE state = 'idle') as idle_connections,
-        count(*) FILTER (WHERE wait_event_type = 'Client') as waiting_requests
+        count(*)::text as total_connections,
+        count(*) FILTER (WHERE state = 'idle')::text as idle_connections,
+        count(*) FILTER (WHERE wait_event_type = 'Client')::text as waiting_requests
       FROM pg_stat_activity
       WHERE datname = current_database()
     `);
     
-    const stats = result.rows[0] as any;
+    const statsRow = (result as unknown as { rows: Array<Record<string, string>> }).rows[0];
     
     return {
-      totalConnections: parseInt(stats.total_connections),
-      idleConnections: parseInt(stats.idle_connections),
-      waitingRequests: parseInt(stats.waiting_requests),
+      totalConnections: parseInt(statsRow.total_connections, 10),
+      idleConnections: parseInt(statsRow.idle_connections, 10),
+      waitingRequests: parseInt(statsRow.waiting_requests, 10),
     };
   }
   

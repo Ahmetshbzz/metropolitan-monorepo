@@ -186,7 +186,9 @@ class StripeService {
   async getCustomer(customerId: string): Promise<Stripe.Customer> {
     try {
       const customer = await this.stripe.customers.retrieve(customerId);
-      return customer as Stripe.Customer;
+      // SDK returns union (Customer | DeletedCustomer); retrieve by id returns Customer unless deleted
+      if (!("deleted" in customer)) return customer;
+      throw new Error("Requested customer is deleted");
     } catch (error) {
       console.error("Stripe Customer retrieval error:", error);
       throw new Error("Customer retrieval failed");

@@ -17,5 +17,8 @@ export * from "./cart.schema";
 // Misafir domain'i
 export * from "./guest.schema";
 
+// Outbox + idempotency
+export * from "./outbox.schema";
+
 // İlişkiler
 export * from "./relations";

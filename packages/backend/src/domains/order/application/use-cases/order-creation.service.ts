@@ -11,6 +11,8 @@ import type {
 } from "@metropolitan/shared/types/order";
 import { eq } from "drizzle-orm";
 
+import { createDomainEvent } from "../../../../shared/application/events/domain-events";
+import { OutboxService } from "../../../../shared/application/events/outbox.service";
 import { db } from "../../../../shared/infrastructure/database/connection";
 import {
   orders,
@@ -72,15 +74,43 @@ export class OrderCreationService {
       const [order] = await tx.insert(orders).values(orderPayload).returning();
       if (!order) throw new Error("Sipariş oluşturulamadı");
 
+      // Publish OrderCreated event via outbox (same transaction boundary)
+      const orderCreated = createDomainEvent(
+        "order.created",
+        {
+          orderId: order.id,
+          userId,
+          totalAmount,
+          currency: order.currency,
+        },
+        order.id
+      );
+      await OutboxService.addEvent(orderCreated);
+
       // Handle corporate bank transfer auto-approval (delegated)
       if (isBankTransfer && user.userType === "corporate") {
-        return await PaymentProcessingService.handleCorporateBankTransfer(
-          tx,
-          order,
-          orderItemsData,
-          cartItemsData,
-          userId
+        const result =
+          await PaymentProcessingService.handleCorporateBankTransfer(
+            tx,
+            order,
+            orderItemsData,
+            cartItemsData,
+            userId
+          );
+
+        // Payment succeeded for corporate bank transfer - emit event
+        const paymentSucceeded = createDomainEvent(
+          "payment.succeeded",
+          {
+            orderId: order.id,
+            userId,
+            paymentIntentId: "bank_transfer",
+          },
+          order.id
         );
+        await OutboxService.addEvent(paymentSucceeded);
+
+        return result;
       }
 
       // Process Stripe payment (delegated)
@@ -98,6 +128,18 @@ export class OrderCreationService {
         stripeInfo.paymentIntentId,
         stripeInfo.clientSecret
       );
+
+      // Emit payment intent created event (optional for analytics)
+      const paymentIntentCreated = createDomainEvent(
+        "payment.intent_created",
+        {
+          orderId: order.id,
+          userId,
+          paymentIntentId: stripeInfo.paymentIntentId,
+        },
+        order.id
+      );
+      await OutboxService.addEvent(paymentIntentCreated);
 
       // Create order items (delegated)
       await CartManagementService.createOrderItems(
@@ -182,7 +224,17 @@ export class OrderCreationService {
   /**
    * Formats order creation result based on order status
    */
-  private static formatOrderCreationResult(order: any): OrderCreationResult {
+  private static formatOrderCreationResult(order: {
+    id: string;
+    orderNumber: string;
+    status: string;
+    totalAmount: string;
+    currency: string;
+    createdAt: Date | string;
+    paymentStatus?: string;
+    stripePaymentIntentId?: string;
+    stripeClientSecret?: string;
+  }): OrderCreationResult {
     const baseResult = {
       success: true,
       order: {
@@ -198,9 +250,10 @@ export class OrderCreationService {
 
     // Add Stripe payment info if available
     if (order.stripePaymentIntentId) {
-      (baseResult.order as any).stripePaymentIntentId =
-        order.stripePaymentIntentId;
-      (baseResult.order as any).stripeClientSecret = order.stripeClientSecret;
+      baseResult.order.stripePaymentIntentId = order.stripePaymentIntentId;
+      if (order.stripeClientSecret) {
+        baseResult.order.stripeClientSecret = order.stripeClientSecret;
+      }
     }
 
     return baseResult;
@@ -209,7 +262,7 @@ export class OrderCreationService {
   /**
    * Rollback stock if order fails (delegated to StockManagementService)
    */
-  static async rollbackStock(orderId: string): Promise<void> {
+  static async rollbackStock(_orderId: string): Promise<void> {
     // No-op: stock rollback removed
   }
 }

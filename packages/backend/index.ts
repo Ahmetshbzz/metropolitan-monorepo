@@ -28,6 +28,7 @@ import { addressRoutes } from "./src/domains/user/presentation/routes/address.ro
 import { profileRoutes } from "./src/domains/user/presentation/routes/profile.routes";
 import { healthRoutes } from "./src/shared/application/common/health.routes";
 import { utilsRoutes } from "./src/shared/application/common/utils.routes";
+import { startOutboxDispatcher } from "./src/shared/application/events/outbox.service";
 import { db } from "./src/shared/infrastructure/database/connection";
 import { compressionPlugin } from "./src/shared/infrastructure/middleware/compression";
 import { initializeSentry } from "./src/shared/infrastructure/monitoring/sentry.config";
@@ -93,23 +94,29 @@ export const app = new Elysia()
   // Stripe webhook routes (root level - not in API group)
   .use(stripeWebhookRoutes)
 
-  .get("/", () => `Welcome to Metropolitan!`, {
-    beforeHandle(context) {
-      (context.store as { rootReqStartTime?: bigint }).rootReqStartTime =
-        process.hrtime.bigint();
-    },
-    afterHandle({ response, store }) {
-      const { rootReqStartTime } = store as { rootReqStartTime: bigint };
-      const duration = process.hrtime.bigint() - rootReqStartTime;
-      const durationInMs = Number(duration) / 1_000_000;
-      const requestId = randomBytes(8).toString("hex");
-
-      if (typeof response === "string") {
-        return `${response} From ${commitHash} (${requestId}) in ${durationInMs.toPrecision(15)}ms.`;
-      }
-      return response;
-    },
-  })
+  .get(
+    "/",
+    () => `Welcome to Metropolitan!`,
+    (() => {
+      const startTimes = new WeakMap<Request, bigint>();
+      return {
+        beforeHandle(ctx: { request: Request }) {
+          startTimes.set(ctx.request, process.hrtime.bigint());
+        },
+        afterHandle(ctx: { response: unknown; request: Request }) {
+          const start = startTimes.get(ctx.request);
+          if (!start) return ctx.response;
+          const duration = process.hrtime.bigint() - start;
+          const durationInMs = Number(duration) / 1_000_000;
+          const requestId = randomBytes(8).toString("hex");
+          if (typeof ctx.response === "string") {
+            return `${ctx.response} From ${commitHash} (${requestId}) in ${durationInMs.toPrecision(15)}ms.`;
+          }
+          return ctx.response;
+        },
+      };
+    })()
+  )
   .group("/api", (app) =>
     app
       // Identity Domain
@@ -145,6 +152,9 @@ export const app = new Elysia()
   );
 
 if (process.env.NODE_ENV !== "test") {
+  // Start outbox dispatcher loop
+  startOutboxDispatcher();
+
   app.listen({ port: 3000, hostname: "0.0.0.0" });
   console.log(
     `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`

@@ -23,7 +23,7 @@ export class WebhookRouterService {
 
     // Get handler for this event type
     const handler = PaymentIntentHandlersService.getHandler(eventType);
-    
+
     if (!handler) {
       console.log(`Unhandled webhook event type: ${event.type}`);
       return {
@@ -36,7 +36,7 @@ export class WebhookRouterService {
     try {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
       const result = await handler.handle(paymentIntent);
-      
+
       if (result.success) {
         console.log(
           `✅ Successfully processed ${event.type} for order ${result.orderId}`
@@ -46,15 +46,15 @@ export class WebhookRouterService {
           `❌ Failed to process ${event.type}: ${result.message}`
         );
       }
-      
+
       return result;
     } catch (handlerError) {
       console.error(`Handler error for ${event.type}:`, handlerError);
       return {
         success: false,
         message: `Handler error for ${event.type}`,
-        error: handlerError instanceof Error 
-          ? handlerError.message 
+        error: handlerError instanceof Error
+          ? handlerError.message
           : 'Unknown handler error',
       };
     }
@@ -83,7 +83,7 @@ export class WebhookRouterService {
 
     // Check if it's a payment intent event
     if (event.type.startsWith('payment_intent.')) {
-      const paymentIntent = event.data.object as any;
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
       if (!paymentIntent.id || !paymentIntent.metadata) {
         return {
           valid: false,

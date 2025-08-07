@@ -81,7 +81,20 @@ async function fetchNipFromApi(nip: string): Promise<NipInfo> {
       );
     }
 
-    const data = (await response.json()) as any;
+    const raw = await response.json();
+    const data = (raw && typeof raw === "object" ? raw : {}) as {
+      result?: {
+        subject?: Record<string, unknown> & {
+          name?: string;
+          nip?: string;
+          statusVat?: string;
+          regon?: string;
+          krs?: string;
+          workingAddress?: string;
+          registrationLegalDate?: string;
+        };
+      };
+    };
 
     // API response'u "result" objesine sarar, asıl veri subject içinde
     const subject = data?.result?.subject;
@@ -95,19 +108,27 @@ async function fetchNipFromApi(nip: string): Promise<NipInfo> {
 
     return {
       success: true,
-      companyName: subject.name,
-      nip: subject.nip,
-      statusVat: subject.statusVat,
-      regon: subject.regon,
-      krs: subject.krs,
-      workingAddress: subject.workingAddress,
-      registrationDate: subject.registrationLegalDate,
+      companyName: typeof subject.name === "string" ? subject.name : undefined,
+      nip: typeof subject.nip === "string" ? subject.nip : undefined,
+      statusVat:
+        typeof subject.statusVat === "string" ? subject.statusVat : undefined,
+      regon: typeof subject.regon === "string" ? subject.regon : undefined,
+      krs: typeof subject.krs === "string" ? subject.krs : undefined,
+      workingAddress:
+        typeof subject.workingAddress === "string"
+          ? subject.workingAddress
+          : undefined,
+      registrationDate:
+        typeof subject.registrationLegalDate === "string"
+          ? subject.registrationLegalDate
+          : undefined,
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error during NIP API request:", error);
+    const message = error instanceof Error ? error.message : String(error);
     return {
       success: false,
-      message: `An error occurred while trying to verify the NIP: ${error.message}`,
+      message: `An error occurred while trying to verify the NIP: ${message}`,
     };
   }
 }
