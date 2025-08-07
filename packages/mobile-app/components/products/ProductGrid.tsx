@@ -72,9 +72,7 @@ export const ProductGrid = forwardRef<ProductGridRef, ProductGridProps>(
       propProducts || searchQuery.trim() ? undefined : fetchMoreProducts;
 
     const renderItem: ListRenderItem<Product> = useCallback(
-      ({ item }) => (
-        <ProductCard product={item} />
-      ),
+      ({ item }) => <ProductCard product={item} />,
       []
     );
 
@@ -94,7 +92,7 @@ export const ProductGrid = forwardRef<ProductGridRef, ProductGridProps>(
         data={products}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        numColumns={2}
+        numColumns={3}
         contentContainerStyle={[
           { paddingHorizontal: 8, paddingVertical: 8 },
           contentContainerStyle,

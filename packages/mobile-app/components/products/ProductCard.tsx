@@ -47,8 +47,8 @@ export const ProductCard = React.memo<ProductCardProps>(function ProductCard({
 
   return (
     <View
-      className={isHorizontal ? "mr-3" : "mx-1 mb-3"}
-      style={isHorizontal ? { width: 180 } : { width: "48%" }}
+      className={isHorizontal ? "mr-3" : "mx-1 mb-2"}
+      style={isHorizontal ? { width: 180 } : { width: "31.5%" }}
     >
       <Link
         href={{
@@ -59,33 +59,32 @@ export const ProductCard = React.memo<ProductCardProps>(function ProductCard({
       >
         <TouchableOpacity
           activeOpacity={0.9}
-          className="overflow-hidden rounded-3xl border"
+          className="overflow-hidden rounded-2xl border"
           style={{
             backgroundColor: colors.cardBackground,
             borderColor: colors.border,
             shadowColor: colorScheme === "dark" ? "#000" : colors.tint,
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: colorScheme === "dark" ? 0.3 : 0.12,
-            shadowRadius: 12,
-            elevation: 6,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: colorScheme === "dark" ? 0.24 : 0.08,
+            shadowRadius: 8,
+            elevation: 3,
           }}
         >
           {/* Brand Badge - Top Left */}
           {product.brand && (
-            <View 
-              className="absolute top-3 left-3 z-10 px-2 py-1 rounded-full" 
-              style={{ 
-                backgroundColor: colorScheme === "dark" 
-                  ? colors.tertiaryBackground 
-                  : colors.background 
+            <View
+              className="absolute top-3 left-3 z-10 px-2 py-1 rounded-full"
+              style={{
+                backgroundColor:
+                  colorScheme === "dark"
+                    ? colors.tertiaryBackground
+                    : colors.background,
               }}
             >
               <ThemedText
                 className="text-xs font-medium uppercase tracking-wide"
                 style={{
-                  color: colorScheme === "dark" 
-                    ? colors.mediumGray 
-                    : "#6b7280",
+                  color: colorScheme === "dark" ? colors.mediumGray : "#6b7280",
                   fontSize: 10,
                 }}
                 numberOfLines={1}
@@ -120,7 +119,11 @@ export const ProductCard = React.memo<ProductCardProps>(function ProductCard({
             <Ionicons
               name={isProductFavorite ? "heart" : "heart-outline"}
               size={20}
-              color={getFavoriteIconColor(isProductFavorite, colorScheme, colors)}
+              color={getFavoriteIconColor(
+                isProductFavorite,
+                colorScheme,
+                colors
+              )}
             />
           </HapticIconButton>
         </TouchableOpacity>

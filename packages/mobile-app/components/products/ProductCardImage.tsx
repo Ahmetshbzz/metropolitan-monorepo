@@ -26,32 +26,32 @@ export const ProductCardImage: React.FC<ProductCardImageProps> = ({
   const { t } = useTranslation();
 
   return (
-    <View 
+    <View
       className="relative items-center justify-center overflow-hidden"
-      style={{ 
+      style={{
         aspectRatio: 1,
-        backgroundColor: colorScheme === 'dark' ? '#1f1f1f' : '#f8f8f8',
-        borderTopLeftRadius: 16,
-        borderTopRightRadius: 16,
+        backgroundColor: colorScheme === "dark" ? "#1f1f1f" : "#f8f8f8",
+        borderTopLeftRadius: 12,
+        borderTopRightRadius: 12,
       }}
     >
       {/* Enhanced gradient background */}
       <LinearGradient
         colors={
-          colorScheme === 'dark' 
-            ? ['#2a2a2a', '#1a1a1a', '#0f0f0f']
-            : ['#ffffff', '#f8f9fa', '#f1f3f4']
+          colorScheme === "dark"
+            ? ["#2a2a2a", "#1a1a1a", "#0f0f0f"]
+            : ["#ffffff", "#f8f9fa", "#f1f3f4"]
         }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         className="absolute inset-0"
       />
-      
+
       <Image
         source={{ uri: product.image }}
         style={{
-          width: '85%',
-          height: '85%',
+          width: "78%",
+          height: "78%",
         }}
         contentFit="contain"
         transition={400}
@@ -61,9 +61,9 @@ export const ProductCardImage: React.FC<ProductCardImageProps> = ({
       {/* Enhanced gradient overlay for depth */}
       <LinearGradient
         colors={
-          colorScheme === 'dark'
-            ? ['rgba(255,255,255,0)', 'rgba(255,255,255,0.02)']
-            : ['rgba(0,0,0,0)', 'rgba(0,0,0,0.04)']
+          colorScheme === "dark"
+            ? ["rgba(255,255,255,0)", "rgba(255,255,255,0.02)"]
+            : ["rgba(0,0,0,0)", "rgba(0,0,0,0.04)"]
         }
         start={{ x: 0, y: 0.5 }}
         end={{ x: 0, y: 1 }}
@@ -79,7 +79,7 @@ export const ProductCardImage: React.FC<ProductCardImageProps> = ({
         >
           <View
             className="px-4 py-2 rounded-full backdrop-blur-sm"
-            style={{ 
+            style={{
               backgroundColor: colors.danger,
               shadowColor: colors.danger,
               shadowOffset: { width: 0, height: 4 },
