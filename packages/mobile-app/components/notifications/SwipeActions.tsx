@@ -5,13 +5,14 @@
 import { swipeConfig } from "@/constants/notifications.constants";
 import { SwipeActionsProps } from "@/types/notifications.types";
 import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
+import { useHaptics } from "@/hooks/useHaptics";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Animated, Text, TouchableOpacity } from "react-native";
 
 export function SwipeActions({ item, onDelete }: SwipeActionsProps) {
   const { t } = useTranslation();
+  const { triggerHaptic } = useHaptics();
 
   const renderRightActions = (
     progress: Animated.AnimatedAddition<number>,
@@ -30,7 +31,7 @@ export function SwipeActions({ item, onDelete }: SwipeActionsProps) {
     });
 
     const handleDelete = () => {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      triggerHaptic("medium");
       onDelete(item.id);
     };
 

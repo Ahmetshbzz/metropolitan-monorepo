@@ -78,9 +78,7 @@ export function PurchaseSection({
       }
 
       await addToCart(product.id, numQuantity);
-
-      // Başarılı ekleme/güncelleme sonrası hafif titreşim
-      triggerHaptic("light", true);
+      // Haptik sadece basış anında verilir; burada tetiklenmez
 
       if (!cartItem) {
         // Yeni ekleme ise geçici olarak "Sepete Eklendi" göster

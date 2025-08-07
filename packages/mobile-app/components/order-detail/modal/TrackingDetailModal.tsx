@@ -9,7 +9,7 @@ import {
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
 import * as Clipboard from "expo-clipboard";
-import * as Haptics from "expo-haptics";
+import { useHaptics } from "@/hooks/useHaptics";
 import { forwardRef, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { TouchableOpacity, View } from "react-native";
@@ -70,6 +70,7 @@ export const TrackingDetailModal = forwardRef<
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
   const { t, i18n } = useTranslation();
+  const { triggerHaptic } = useHaptics();
 
   const renderBackdrop = useCallback(
     (props: any) => (
@@ -85,7 +86,7 @@ export const TrackingDetailModal = forwardRef<
   const copyToClipboard = async () => {
     if (order?.trackingNumber) {
       await Clipboard.setStringAsync(order.trackingNumber);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      triggerHaptic("success");
     }
   };
 

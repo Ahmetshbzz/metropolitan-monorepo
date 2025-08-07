@@ -35,7 +35,7 @@ export function ProductImage({ product }: ProductImageProps) {
           message: `${product.name} - ${t("product_detail.share.check_out_this_product")}`,
           title: product.name,
         });
-        triggerHaptic("light");
+        // Haptik sadece buton basışında HapticIconButton tarafından verilir
       } catch (error) {
         console.error("Error sharing:", error);
       }

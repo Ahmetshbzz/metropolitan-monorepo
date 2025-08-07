@@ -5,11 +5,12 @@
 import { CartItem as CartItemType, useCart } from "@/context/CartContext";
 import { useProducts } from "@/context/ProductContext";
 import { useTheme } from "@/hooks/useTheme";
-import * as Haptics from "expo-haptics";
+import { useHaptics } from "@/hooks/useHaptics";
 import { useRouter } from "expo-router";
 
 export const useCartItem = (item: CartItemType) => {
   const { colors, colorScheme } = useTheme();
+  const { triggerHaptic } = useHaptics();
   const { products } = useProducts();
   const { summary } = useCart();
   const router = useRouter();
@@ -39,12 +40,12 @@ export const useCartItem = (item: CartItemType) => {
   };
 
   const handleSwipeWillOpen = (direction: "left" | "right") => {
-    // İlk kaydırmada hafif titreşim
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Hafif tek haptik
+    triggerHaptic("light");
   };
 
   const handleDelete = (onRemove: () => void) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    triggerHaptic("medium");
     onRemove();
   };
 

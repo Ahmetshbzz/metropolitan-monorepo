@@ -6,7 +6,7 @@ import React from "react";
 import { ScrollView, View } from "react-native";
 
 import { Category } from "@/context/ProductContext";
-import { useHaptics } from "@/hooks/useHaptics";
+import { HapticButton } from "@/components/HapticButton";
 import { CategoryFilterItem } from "./CategoryFilterItem";
 
 interface CategoryFilterProps {
@@ -20,10 +20,7 @@ export function CategoryFilter({
   activeCategory,
   onCategoryPress,
 }: CategoryFilterProps) {
-  const { triggerHaptic } = useHaptics();
-
   const handleCategoryPress = (slug: string) => {
-    triggerHaptic("light");
     onCategoryPress(slug);
   };
 
@@ -35,12 +32,19 @@ export function CategoryFilter({
         contentContainerStyle={{ paddingHorizontal: 16 }}
       >
         {categories.map((category) => (
-          <CategoryFilterItem
+          <HapticButton
             key={category.id}
-            category={category}
-            isActive={activeCategory === category.slug}
-            onPress={handleCategoryPress}
-          />
+            hapticType="light"
+            onPress={() => handleCategoryPress(category.slug)}
+            className="mr-4"
+            style={{ paddingVertical: 0, paddingHorizontal: 0, backgroundColor: "transparent" }}
+          >
+            <CategoryFilterItem
+              category={category}
+              isActive={activeCategory === category.slug}
+              onPress={handleCategoryPress}
+            />
+          </HapticButton>
         ))}
       </ScrollView>
     </View>
