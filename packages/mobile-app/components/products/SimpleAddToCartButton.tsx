@@ -5,6 +5,7 @@
 import type { ThemeColors } from "@/types/theme";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { useHaptics } from "@/hooks/useHaptics";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -24,21 +25,25 @@ export const SimpleAddToCartButton: React.FC<SimpleAddToCartButtonProps> = ({
   outOfStock = false,
 }) => {
   const [state, setState] = useState<"idle" | "loading" | "success">("idle");
+  const { triggerHaptic } = useHaptics();
 
   const handlePress = async (e: GestureResponderEvent) => {
     if (state !== "idle") return;
 
-    Haptics.selectionAsync();
+    // Tıklandığı anda hafif haptik tetikle (non-blocking)
+    triggerHaptic("light");
     setState("loading");
 
     try {
       await onPress(e);
       setState("success");
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      // Başarıya daha yumuşak bir bildirim
+      triggerHaptic("light");
       setTimeout(() => setState("idle"), 1500);
     } catch {
       setState("idle");
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      // Hata halinde de aşırı sertlik olmadan
+      triggerHaptic("light");
     }
   };
 

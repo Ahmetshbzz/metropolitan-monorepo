@@ -21,6 +21,8 @@ export type HapticType =
 export function useHaptics() {
   // Kullanıcı ayarlarından titreşim durumunu al
   const { settings } = useUserSettings();
+  // Çifte tetiklemeyi engellemek için kısa bir cooldown
+  let lastTriggerTs = 0;
 
   /**
    * Farklı türlerde titreşimler için işlev
@@ -33,9 +35,13 @@ export function useHaptics() {
     // iOS'ta çalışır, Android'de bazı cihazlarda desteklenebilir
     if (Platform.OS === "ios" || Platform.OS === "android") {
       try {
+        const now = Date.now();
+        if (!force && now - lastTriggerTs < 120) return; // 120ms cooldown
+        lastTriggerTs = now;
         switch (type) {
           case "light":
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            // Daha yumuşak ve hızlı his için selection kullan
+            Haptics.selectionAsync();
             break;
           case "medium":
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -53,7 +59,7 @@ export function useHaptics() {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
             break;
           default:
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            Haptics.selectionAsync();
         }
       } catch (error) {}
     }
