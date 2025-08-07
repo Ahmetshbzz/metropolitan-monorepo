@@ -168,9 +168,9 @@ const protectedProfileRoutes = createApp()
     {
       body: t.Object({
         photo: t.File({
-          type: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
-          maxSize: 2 * 1024 * 1024, // 2MB
-          error: 'Invalid file. Must be JPEG, PNG, or WebP under 2MB.'
+          type: ["image/jpeg", "image/jpg", "image/png", "image/webp"],
+          maxSize: 5 * 1024 * 1024, // 5MB
+          error: "Invalid file. Must be JPEG, PNG, or WebP under 5MB.",
         }),
       }),
     }
