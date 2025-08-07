@@ -30,7 +30,7 @@ export class RedisRollbackStrategy implements RollbackStrategy {
         } catch (_error) {
           errors.push(
             `Redis rollback failed for ${detail.productId}: ${
-              error instanceof Error ? error.message : "Unknown error"
+              _error instanceof Error ? _error.message : "Unknown error"
             }`
           );
         }

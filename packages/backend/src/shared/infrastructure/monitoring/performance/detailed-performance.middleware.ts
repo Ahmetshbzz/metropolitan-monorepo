@@ -63,13 +63,10 @@ export const detailedPerformanceMiddleware = new Elysia()
         console.warn("Failed to increment total requests:", err);
       });
 
-    // Enhanced headers
-    set.headers = {
-      ...set.headers,
-      "X-Response-Time": `${responseTime}ms`,
-      "X-Endpoint": `${store.requestMethod} ${store.requestPath}`,
-      "X-Performance-Tracked": "detailed",
-    };
+    // Enhanced headers (set individually to avoid type issues with existing headers)
+    set.headers["X-Response-Time"] = `${responseTime}ms`;
+    set.headers["X-Endpoint"] = `${store.requestMethod} ${store.requestPath}`;
+    set.headers["X-Performance-Tracked"] = "detailed";
 
     redis
       .decr(PERFORMANCE_CONFIG.REDIS_KEYS.API_ACTIVE_CONNECTIONS)
@@ -92,9 +89,10 @@ export const detailedPerformanceMiddleware = new Elysia()
       console.warn("Failed to increment endpoint errors:", err);
     });
 
+    const errorMessage = (error as any)?.message ?? String(error);
     console.error(
       `${store.requestMethod} ${store.requestPath} failed after ${responseTime}ms:`,
-      error.message
+      errorMessage
     );
 
     redis
