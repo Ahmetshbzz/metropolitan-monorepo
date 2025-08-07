@@ -44,8 +44,8 @@ export const CartItemContent: React.FC<CartItemContentProps> = ({
   const quantityButtonStyle = getQuantityButtonStyle(colors);
 
   return (
-    <View className="mx-4 mb-3">
-      <BaseCard borderRadius={20} padding={12}>
+    <View className="mx-3 mb-2">
+      <BaseCard borderRadius={16} padding={10}>
         <View className="flex-row items-center">
           <TouchableOpacity
             onPress={onProductPress}
@@ -53,24 +53,24 @@ export const CartItemContent: React.FC<CartItemContentProps> = ({
           >
             <Image
               source={{ uri: product.image }}
-              style={{ width: 80, height: 80, marginRight: 12 }}
+              style={{ width: 64, height: 64, marginRight: 10 }}
               contentFit="contain"
             />
             <View className="flex-1 justify-start">
               <ThemedText
-                className="text-base font-semibold mb-0.5"
+                className="text-sm font-semibold mb-0.5"
                 numberOfLines={2}
               >
                 {product.name}
               </ThemedText>
               <ThemedText
-                className="text-sm mb-1"
+                className="text-xs mb-1"
                 style={{ color: colors.mediumGray }}
               >
                 {product.brand} • {product.size}
               </ThemedText>
               <View className="flex-row items-center justify-between">
-                <ThemedText className="text-base font-bold">
+                <ThemedText className="text-sm font-bold">
                   {formatPrice(totalItemPrice, summary?.currency)}
                 </ThemedText>
               </View>
@@ -83,28 +83,28 @@ export const CartItemContent: React.FC<CartItemContentProps> = ({
               style={quantityControlStyle}
             >
               <HapticIconButton
-                className="w-9 h-9 items-center justify-center"
+                className="w-8 h-8 items-center justify-center"
                 onPress={onDecrement}
                 hapticType="light"
                 disabled={item.quantity === 1}
               >
                 <Ionicons
                   name="remove"
-                  size={22}
+                  size={18}
                   color={item.quantity === 1 ? colors.mediumGray : colors.text}
                 />
               </HapticIconButton>
               <View style={quantityButtonStyle}>
-                <ThemedText className="text-base font-bold text-center min-w-6">
+                <ThemedText className="text-sm font-semibold text-center min-w-6">
                   {item.quantity}
                 </ThemedText>
               </View>
               <HapticIconButton
-                className="w-9 h-9 items-center justify-center"
+                className="w-8 h-8 items-center justify-center"
                 onPress={onIncrement}
                 hapticType="light"
               >
-                <Ionicons name="add" size={22} color={colors.text} />
+                <Ionicons name="add" size={18} color={colors.text} />
               </HapticIconButton>
             </View>
           </View>

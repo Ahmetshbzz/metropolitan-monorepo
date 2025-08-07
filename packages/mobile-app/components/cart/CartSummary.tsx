@@ -20,7 +20,7 @@ interface CartSummaryProps {
   isCheckingOut?: boolean;
 }
 
-export const CART_SUMMARY_HEIGHT = 120; // Increased height for mini sheet
+export const CART_SUMMARY_HEIGHT = 104; // more compact mini sheet
 
 // Hook to get dynamic cart summary height
 export function useCartSummaryHeight() {
@@ -42,25 +42,25 @@ export function CartSummary({
     <ThemedView
       className="absolute bottom-0 left-0 right-0 z-10"
       style={{
-        paddingTop: 16,
+        paddingTop: 12,
         paddingBottom,
-        paddingHorizontal: 20,
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
+        paddingHorizontal: 16,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
         backgroundColor: colors.cardBackground,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 12,
+        shadowOpacity: 0.05,
+        shadowRadius: 6,
+        elevation: 8,
       }}
     >
-      <View className="flex-row items-center justify-between mb-3">
-        <ThemedText className="text-sm" style={{ color: "#666" }}>
+      <View className="flex-row items-center justify-between mb-2.5">
+        <ThemedText className="text-xs" style={{ color: "#666" }}>
           {t("cart.summary.total_label", { count: summary.totalItems })}
         </ThemedText>
         <ThemedText
-          className="text-xl font-bold"
+          className="text-lg font-bold"
           style={{ color: colors.tint }}
         >
           {formatPrice(summary.totalAmount, summary.currency)}

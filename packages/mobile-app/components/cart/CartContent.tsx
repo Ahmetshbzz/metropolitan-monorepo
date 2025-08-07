@@ -48,8 +48,8 @@ export function CartContent({
             />
           )}
           contentContainerStyle={{
-            paddingTop: 16,
-            paddingBottom: cartSummaryHeight + 16,
+            paddingTop: 12,
+            paddingBottom: cartSummaryHeight + 12,
             flexGrow: 1,
           }}
           showsVerticalScrollIndicator={false}

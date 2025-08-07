@@ -34,5 +34,5 @@ export const getQuantityButtonStyle = (colors: ThemeColors) => ({
   borderLeftWidth: 1,
   borderRightWidth: 1,
   borderColor: colors.border,
-  paddingHorizontal: 12,
+  paddingHorizontal: 10,
 });
