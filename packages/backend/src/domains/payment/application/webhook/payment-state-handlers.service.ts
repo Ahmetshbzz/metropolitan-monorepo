@@ -3,7 +3,6 @@
 
 import { WebhookOrderManagementService } from "./order-management.service";
 import { PaymentIntentActionsService } from "./payment-intent-actions.service";
-import { WebhookStockRollbackService } from "./stock-rollback.service";
 import type { WebhookProcessingResult } from "./webhook-types";
 
 export class PaymentStateHandlersService {
@@ -11,15 +10,16 @@ export class PaymentStateHandlersService {
    * Handle successful payment
    */
   static async handleSuccess(
-    orderId: string, 
-    userId: string, 
+    orderId: string,
+    userId: string,
     paymentIntentId: string
   ): Promise<WebhookProcessingResult> {
     // Check idempotency
-    const idempotencyCheck = await WebhookOrderManagementService.checkOrderIdempotency(
-      orderId, 
-      'completed'
-    );
+    const idempotencyCheck =
+      await WebhookOrderManagementService.checkOrderIdempotency(
+        orderId,
+        "completed"
+      );
 
     if (!idempotencyCheck.shouldProcess) {
       console.log(`Order ${orderId} already completed, skipping...`);
@@ -31,10 +31,11 @@ export class PaymentStateHandlersService {
     }
 
     // Mark order as completed
-    const orderUpdateResult = await WebhookOrderManagementService.markOrderCompleted(
-      orderId,
-      paymentIntentId
-    );
+    const orderUpdateResult =
+      await WebhookOrderManagementService.markOrderCompleted(
+        orderId,
+        paymentIntentId
+      );
 
     if (!orderUpdateResult.success) {
       return orderUpdateResult;
@@ -58,9 +59,12 @@ export class PaymentStateHandlersService {
   /**
    * Handle failed payment
    */
-  static async handleFailure(orderId: string): Promise<WebhookProcessingResult> {
+  static async handleFailure(
+    orderId: string
+  ): Promise<WebhookProcessingResult> {
     // Mark order as failed
-    const orderUpdateResult = await WebhookOrderManagementService.markOrderFailed(orderId);
+    const orderUpdateResult =
+      await WebhookOrderManagementService.markOrderFailed(orderId);
 
     if (!orderUpdateResult.success) {
       return orderUpdateResult;
@@ -68,16 +72,9 @@ export class PaymentStateHandlersService {
 
     console.log(`❌ Order ${orderId} payment failed`);
 
-    // Rollback stock
-    const rollbackResult = await WebhookStockRollbackService.rollbackOrderStock(orderId);
-    
-    if (!rollbackResult.success) {
-      console.error(`Stock rollback failed for order ${orderId}:`, rollbackResult.errors);
-    }
-
     return {
       success: true,
-      message: `Payment failed for order ${orderId}, stock rolled back`,
+      message: `Payment failed for order ${orderId}`,
       orderId,
     };
   }
@@ -85,8 +82,11 @@ export class PaymentStateHandlersService {
   /**
    * Handle payment requiring action
    */
-  static async handleRequiresAction(orderId: string): Promise<WebhookProcessingResult> {
-    const orderUpdateResult = await WebhookOrderManagementService.markOrderRequiresAction(orderId);
+  static async handleRequiresAction(
+    orderId: string
+  ): Promise<WebhookProcessingResult> {
+    const orderUpdateResult =
+      await WebhookOrderManagementService.markOrderRequiresAction(orderId);
 
     if (!orderUpdateResult.success) {
       return orderUpdateResult;
@@ -104,12 +104,15 @@ export class PaymentStateHandlersService {
   /**
    * Handle canceled payment
    */
-  static async handleCancellation(orderId: string): Promise<WebhookProcessingResult> {
+  static async handleCancellation(
+    orderId: string
+  ): Promise<WebhookProcessingResult> {
     // Check idempotency
-    const idempotencyCheck = await WebhookOrderManagementService.checkOrderIdempotency(
-      orderId, 
-      'canceled'
-    );
+    const idempotencyCheck =
+      await WebhookOrderManagementService.checkOrderIdempotency(
+        orderId,
+        "canceled"
+      );
 
     if (!idempotencyCheck.shouldProcess) {
       console.log(`Order ${orderId} already canceled, skipping...`);
@@ -121,7 +124,8 @@ export class PaymentStateHandlersService {
     }
 
     // Mark order as canceled
-    const orderUpdateResult = await WebhookOrderManagementService.markOrderCanceled(orderId);
+    const orderUpdateResult =
+      await WebhookOrderManagementService.markOrderCanceled(orderId);
 
     if (!orderUpdateResult.success) {
       return orderUpdateResult;
@@ -129,16 +133,9 @@ export class PaymentStateHandlersService {
 
     console.log(`🚫 Order ${orderId} payment canceled`);
 
-    // Rollback stock
-    const rollbackResult = await WebhookStockRollbackService.rollbackOrderStock(orderId);
-    
-    if (!rollbackResult.success) {
-      console.error(`Stock rollback failed for canceled order ${orderId}:`, rollbackResult.errors);
-    }
-
     return {
       success: true,
-      message: `Payment canceled for order ${orderId}, stock rolled back`,
+      message: `Payment canceled for order ${orderId}`,
       orderId,
     };
   }
@@ -146,8 +143,11 @@ export class PaymentStateHandlersService {
   /**
    * Handle processing payment
    */
-  static async handleProcessing(orderId: string): Promise<WebhookProcessingResult> {
-    const orderUpdateResult = await WebhookOrderManagementService.markOrderProcessing(orderId);
+  static async handleProcessing(
+    orderId: string
+  ): Promise<WebhookProcessingResult> {
+    const orderUpdateResult =
+      await WebhookOrderManagementService.markOrderProcessing(orderId);
 
     if (!orderUpdateResult.success) {
       return orderUpdateResult;

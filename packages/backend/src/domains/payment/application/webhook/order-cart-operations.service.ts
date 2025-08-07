@@ -1,14 +1,13 @@
 // "order-cart-operations.service.ts"
-// metropolitan backend  
+// metropolitan backend
 // Cart and order data operations for webhooks
 
 import { eq } from "drizzle-orm";
 
 import { db } from "../../../../shared/infrastructure/database/connection";
-import { cartItems, orders, orderItems } from "../../../../shared/infrastructure/database/schema";
+import { cartItems } from "../../../../shared/infrastructure/database/schema";
 
 export class OrderCartOperationsService {
-  
   /**
    * Clear user's cart after successful payment
    */
@@ -35,7 +34,7 @@ export class OrderCartOperationsService {
 
         // Clear cart
         await tx.delete(cartItems).where(eq(cartItems.userId, userId));
-        
+
         return {
           success: true,
           itemsCleared: remainingCartItems.length,
@@ -46,51 +45,7 @@ export class OrderCartOperationsService {
       return {
         success: false,
         itemsCleared: 0,
-        message: `Failed to clear cart for user ${userId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      };
-    }
-  }
-
-  /**
-   * Get order details for stock rollback operations
-   */
-  static async getOrderDetailsForRollback(orderId: string): Promise<{
-    success: boolean;
-    orderDetails: Array<{
-      userId: string;
-      productId: string;
-      quantity: number;
-    }>;
-    error?: string;
-  }> {
-    try {
-      const orderDetails = await db
-        .select({
-          userId: orders.userId,
-          productId: orderItems.productId,
-          quantity: orderItems.quantity,
-        })
-        .from(orders)
-        .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-        .where(eq(orders.id, orderId));
-
-      const validDetails = orderDetails
-        .filter(detail => detail.productId && detail.quantity)
-        .map(detail => ({
-          userId: detail.userId,
-          productId: detail.productId!,
-          quantity: detail.quantity!,
-        }));
-
-      return {
-        success: true,
-        orderDetails: validDetails,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        orderDetails: [],
-        error: error instanceof Error ? error.message : 'Unknown error',
+        message: `Failed to clear cart for user ${userId}: ${error instanceof Error ? error.message : "Unknown error"}`,
       };
     }
   }
@@ -105,13 +60,13 @@ export class OrderCartOperationsService {
     errors: string[];
   } {
     const errors: string[] = [];
-    
+
     if (!metadata.order_id) {
-      errors.push('Order ID not found in payment intent metadata');
+      errors.push("Order ID not found in payment intent metadata");
     }
-    
+
     if (!metadata.user_id) {
-      errors.push('User ID not found in payment intent metadata');
+      errors.push("User ID not found in payment intent metadata");
     }
 
     return {

@@ -1,5 +1,5 @@
 //  "order-creation.service.ts"
-//  metropolitan backend  
+//  metropolitan backend
 //  Refactored: Main orchestration service for order creation
 //  Now coordinates between specialized services for better modularity
 
@@ -20,7 +20,7 @@ import {
 // Refactored modular services
 import { CartManagementService } from "./order-creation/cart-management.service";
 import { PaymentProcessingService } from "./order-creation/payment-processing.service";
-import { StockManagementService } from "./order-creation/stock-management.service";
+// Stock management removed
 
 export class OrderCreationService {
   /**
@@ -39,10 +39,11 @@ export class OrderCreationService {
     totalAmount: number
   ): Promise<OrderCreationResult> {
     const result = await db.transaction(async (tx) => {
-      // 1. CRITICAL: Stock validation and reservation (delegated)
-      await StockManagementService.validateAndReserveStock(tx, orderItemsData, userId);
+      // Stock reservation/validation removed
 
-      const isStripePayment = PaymentProcessingService.isStripePayment(request.paymentMethodId);
+      const isStripePayment = PaymentProcessingService.isStripePayment(
+        request.paymentMethodId
+      );
       const isBankTransfer = request.paymentMethodId === "bank_transfer";
 
       // Get user info for corporate customer check
@@ -99,7 +100,11 @@ export class OrderCreationService {
       );
 
       // Create order items (delegated)
-      await CartManagementService.createOrderItems(tx, order.id, orderItemsData);
+      await CartManagementService.createOrderItems(
+        tx,
+        order.id,
+        orderItemsData
+      );
 
       // Clear cart (delegated)
       if (cartItemsData.length > 0) {
@@ -151,7 +156,11 @@ export class OrderCreationService {
       if (!order) throw new Error("Sipariş oluşturulamadı");
 
       // Use modular services
-      await CartManagementService.createOrderItems(tx, order.id, orderItemsData);
+      await CartManagementService.createOrderItems(
+        tx,
+        order.id,
+        orderItemsData
+      );
       await CartManagementService.clearUserCart(tx, userId);
 
       return order;
@@ -189,7 +198,8 @@ export class OrderCreationService {
 
     // Add Stripe payment info if available
     if (order.stripePaymentIntentId) {
-      (baseResult.order as any).stripePaymentIntentId = order.stripePaymentIntentId;
+      (baseResult.order as any).stripePaymentIntentId =
+        order.stripePaymentIntentId;
       (baseResult.order as any).stripeClientSecret = order.stripeClientSecret;
     }
 
@@ -200,6 +210,6 @@ export class OrderCreationService {
    * Rollback stock if order fails (delegated to StockManagementService)
    */
   static async rollbackStock(orderId: string): Promise<void> {
-    await StockManagementService.rollbackStock(orderId);
+    // No-op: stock rollback removed
   }
 }
